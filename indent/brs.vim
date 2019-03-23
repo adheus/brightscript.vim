@@ -34,10 +34,21 @@ function! GetBrightscriptIndent()
     endif
 
     let line = getline(v:lnum)
+    let currindent = indent(v:lnum)
     let prevline = getline(pnum)
     let previndent = indent(pnum)
 
-    if prevline =~ '\({\|\[\|(\|:\)$'
+
+    " Match `}`, `]`, and `)`
+    if line =~ '^\s*[}\])]'
+        return currindent - &sw
+    elseif line =~ '^\s*\<\(end\|End\|next\|Next\)\>'
+        return currindent - &sw
+    elseif line =~ '^\s*\<\(else\|Else\)\>'
+        return currindent - &sw
+    endif
+
+    if prevline =~ '[{\[(:]\s*$'
         echo "Brace"
         return previndent + &sw
     elseif prevline =~ '^\s*\<\(function\|sub\)\>\c'
@@ -53,15 +64,6 @@ function! GetBrightscriptIndent()
         endif
     elseif prevline =~ '^\s*\<\(for\|while\)\>\c'
         return previndent + &sw
-    endif
-
-    " Match `}`, `]`, and `)`
-    if line =~ '^\s*\%(}\|]\|)\)'
-        return previndent - &sw
-    elseif line =~ '^\s*\<\(end\|End\|next\|Next\)\>'
-        return previndent - &sw
-    elseif line =~ '^\s*\<\(else\|Else\)\>'
-        return previndent - &sw
     endif
 
     return previndent
