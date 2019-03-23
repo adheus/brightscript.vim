@@ -1,8 +1,7 @@
 " Vim indent file
-" Language:	Brightscript
-" Maintainer:	Charles Greene <charles.greene@redsapce.com>
-" Last Change:	2015 Jan 09
-" vim: set sw=2 sts=2;
+" Language:	BrightScript
+" Maintainer:	Sean Barag <sean@barag.org>
+" Last Change:	2019 Mar 22
 
 if exists("b:did_indent")
     finish
@@ -38,32 +37,35 @@ function! GetBrightscriptIndent()
     endif
 
     let line = getline(v:lnum)
-    let pline = getline(pnum)
-    let ind = indent(pnum)
-    echo pline
+    let prevline = getline(pnum)
+    let previndent = indent(pnum)
 
-    if pline =~ '\({\|\[\|(\|:\)$'
+    if prevline =~ '\({\|\[\|(\|:\)$'
         echo "Brace"
-        return ind + &sw
-    elseif pline =~ '^\s*\<\(function\|Function\|sub\|Sub\)\>'
+        return previndent + &sw
+    elseif prevline =~ '^\s*\<\(function\|sub\)\>\c'
         echo "Function/Sub"
-        return ind + &sw
-    elseif pline =~ '^\s*\<\(if\|If\|else\|Else\)\>'
-        echo "If/Else"
-        return ind + &sw
-    elseif pline =~ '^\s*\<\(for\|For\|while\|While\)\>'
-        echo "For/While"
-        return ind + &sw
+        return previndent + &sw
+    elseif prevline =~ '^\s*\<\%(if\|else\)\>\c'
+        if prevline =~ '\<\%(then\)\>\s*$\c'
+            " auto-indent what looks like a multiline if statement
+            return previndent + &sw
+        else
+            " but not for single-line if statements
+            return previndent
+        endif
+    elseif prevline =~ '^\s*\<\(for\|while\)\>\c'
+        return previndent + &sw
     endif
 
-    " Match } }, }; ] ]: )
-    if line =~ '^\s*\(}\|]\|)\)'
-        return ind - &sw
+    " Match `}`, `]`, and `)`
+    if line =~ '^\s*\%(}\|]\|)\)'
+        return previndent - &sw
     elseif line =~ '^\s*\<\(end\|End\|next\|Next\)\>'
-        return ind - &sw
+        return previndent - &sw
     elseif line =~ '^\s*\<\(else\|Else\)\>'
-        return ind - &sw
+        return previndent - &sw
     endif
 
-    return ind
+    return previndent
 endfunction
