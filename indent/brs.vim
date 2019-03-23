@@ -11,15 +11,11 @@ let b:did_indent = 1
 
 setlocal indentexpr=GetBrightscriptIndent()
 setlocal indentkeys=0{,0},0),0],!^F,o,O,e
-setlocal indentkeys+==end,=elsif,=when,=ensure,=rescue,==begin,==end
+setlocal indentkeys+==end,=elsif,=end
 
 if exists("*GetBrightscriptIndent")
     finish
 endif
-
-
-function! s:OpenBrace(lnum)
-endfunction
 
 function! GetBrightscriptIndent()
 
